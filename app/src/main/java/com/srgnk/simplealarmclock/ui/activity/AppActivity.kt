@@ -4,10 +4,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.srgnk.simplealarmclock.R
 import com.srgnk.simplealarmclock.mvp.view.AppView
+import com.srgnk.simplealarmclock.ui.fragment.AlarmScreen
+import com.srgnk.simplealarmclock.ui.fragment.MainScreen
 
 class AppActivity : AppCompatActivity(), AppView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_app)
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.appFrame, MainScreen())
+            .commit()
     }
 }

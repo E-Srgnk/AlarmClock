@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Будильник</string>
+    <string name="delete_alarm">Удалить</string>
+    <string name="save_alarm">Сохранить</string>
 </resources>
