@@ -9,28 +9,37 @@ import moxy.InjectViewState
 import moxy.MvpPresenter
 
 @InjectViewState
-class AlarmPresenter(private var alarm: Alarm?, private val db: AlarmDatabase): MvpPresenter<AlarmView>() {
+class AlarmPresenter(private val db: AlarmDatabase) : MvpPresenter<AlarmView>() {
 
-    fun clickedSaveAlarm(hours: Int, minutes: Int) {
+    private var id: Long = -1L
+
+    fun clickedSaveAlarm(alarmId: Long, hours: Int, minutes: Int) {
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                alarm = Alarm(hours, minutes)
-                val alarmId = db.alarmDao().insert(alarm!!)
-                alarm?.id = alarmId
+                val alarm = Alarm(hours, minutes)
+                if (alarmId != -1L)
+                    alarm.id = alarmId
+                id = db.alarmDao().insert(alarm)
             }
         }
         viewState.showMessage(R.string.alarm_saved)
     }
 
-    fun clickedDeleteAlarm() {
-        alarm?.let {
-            GlobalScope.launch {
-                withContext(Dispatchers.IO) {
-                    db.alarmDao().delete(it)
-                }
-            }
-        }
+    fun clickedDeleteAlarm(alarmId: Long) {
+        if (alarmWasSaved()) deleteAlarm(id)
+        else deleteAlarm(alarmId)
+
         viewState.showMessage(R.string.alarm_deleted)
         viewState.closeScreen()
     }
+
+    private fun deleteAlarm(id: Long) {
+        GlobalScope.launch {
+            withContext(Dispatchers.IO) {
+                db.alarmDao().deleteById(id)
+            }
+        }
+    }
+
+    private fun alarmWasSaved() = id != -1L
 }

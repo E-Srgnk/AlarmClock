@@ -6,9 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
-import androidx.room.Room
 import com.srgnk.simplealarmclock.databinding.FragmentAlarmBinding
-import com.srgnk.simplealarmclock.mvp.model.Alarm
 import com.srgnk.simplealarmclock.mvp.model.AlarmDatabase
 import com.srgnk.simplealarmclock.mvp.presenter.AlarmPresenter
 import com.srgnk.simplealarmclock.mvp.view.AlarmView
@@ -16,22 +14,34 @@ import com.srgnk.simplealarmclock.ui.activity.AppActivity
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
+import org.koin.android.ext.android.inject
 
-class AlarmScreen(private var alarm: Alarm? = null) : MvpAppCompatFragment(), AlarmView {
+class AlarmScreen : MvpAppCompatFragment(), AlarmView {
 
     private var alarmBinding: FragmentAlarmBinding? = null
     private val binding get() = alarmBinding!!
 
+    private val db: AlarmDatabase by inject()
+
     @InjectPresenter
     lateinit var presenter: AlarmPresenter
     @ProvidePresenter
-    fun providePresenter() = AlarmPresenter(alarm, Room.databaseBuilder(requireContext(), AlarmDatabase::class.java, "alarm").build())
+    fun providePresenter() = AlarmPresenter(db)
+
+    private var alarmId: Long = -1
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        savedInstanceState?.let {
+            alarmId = it.getLong("alarmId")
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         alarmBinding = FragmentAlarmBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -50,11 +60,11 @@ class AlarmScreen(private var alarm: Alarm? = null) : MvpAppCompatFragment(), Al
         binding.minutePicker.minValue = 0
 
         binding.saveAlarm.setOnClickListener {
-            presenter.clickedSaveAlarm(binding.hourPicker.value, binding.minutePicker.value)
+            presenter.clickedSaveAlarm(alarmId, binding.hourPicker.value, binding.minutePicker.value)
         }
 
         binding.deleteAlarm.setOnClickListener {
-            presenter.clickedDeleteAlarm()
+            presenter.clickedDeleteAlarm(alarmId)
         }
     }
 

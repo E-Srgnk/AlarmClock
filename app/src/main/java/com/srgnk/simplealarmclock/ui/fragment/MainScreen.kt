@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import com.srgnk.simplealarmclock.R
 import com.srgnk.simplealarmclock.databinding.FragmentMainBinding
@@ -19,7 +20,7 @@ class MainScreen: MvpAppCompatFragment(), MainView {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         mainBinding = FragmentMainBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -28,7 +29,7 @@ class MainScreen: MvpAppCompatFragment(), MainView {
         super.onViewCreated(view, savedInstanceState)
 
         binding.addNewAlarm.setOnClickListener {
-            findNavController().navigate(R.id.action_MainScreen_to_AlarmScreen)
+            findNavController().navigate(R.id.action_MainScreen_to_AlarmScreen, bundleOf("alarmId" to -1L))
         }
     }
 

@@ -8,8 +8,8 @@ interface AlarmDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(alarm: Alarm): Long
 
-    @Delete
-    fun delete(alarm: Alarm)
+    @Query("DELETE FROM alarm WHERE id = :alarmId")
+    fun deleteById(alarmId: Long)
 
     @Query("SELECT * FROM alarm")
     fun getAllAlarms(): MutableList<Alarm>
