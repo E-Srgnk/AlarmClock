@@ -4,16 +4,28 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
+import androidx.room.Room
 import com.srgnk.simplealarmclock.databinding.FragmentAlarmBinding
+import com.srgnk.simplealarmclock.mvp.model.Alarm
+import com.srgnk.simplealarmclock.mvp.model.AlarmDatabase
+import com.srgnk.simplealarmclock.mvp.presenter.AlarmPresenter
 import com.srgnk.simplealarmclock.mvp.view.AlarmView
 import com.srgnk.simplealarmclock.ui.activity.AppActivity
 import moxy.MvpAppCompatFragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
 
-class AlarmScreen : MvpAppCompatFragment(), AlarmView {
+class AlarmScreen(private var alarm: Alarm? = null) : MvpAppCompatFragment(), AlarmView {
 
     private var alarmBinding: FragmentAlarmBinding? = null
     private val binding get() = alarmBinding!!
+
+    @InjectPresenter
+    lateinit var presenter: AlarmPresenter
+    @ProvidePresenter
+    fun providePresenter() = AlarmPresenter(alarm, Room.databaseBuilder(requireContext(), AlarmDatabase::class.java, "alarm").build())
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,12 +50,20 @@ class AlarmScreen : MvpAppCompatFragment(), AlarmView {
         binding.minutePicker.minValue = 0
 
         binding.saveAlarm.setOnClickListener {
-            findNavController().popBackStack()
+            presenter.clickedSaveAlarm(binding.hourPicker.value, binding.minutePicker.value)
         }
 
         binding.deleteAlarm.setOnClickListener {
-            findNavController().popBackStack()
+            presenter.clickedDeleteAlarm()
         }
+    }
+
+    override fun closeScreen() {
+        findNavController().popBackStack()
+    }
+
+    override fun showMessage(message: Int) {
+        Toast.makeText(context, getString(message), Toast.LENGTH_SHORT).show()
     }
 
     override fun onDestroy() {
