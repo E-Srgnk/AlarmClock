@@ -13,4 +13,7 @@ interface AlarmDao {
 
     @Query("SELECT * FROM alarm")
     fun getAllAlarms(): MutableList<Alarm>
+
+    @Query("SELECT * FROM alarm WHERE id = :alarmId")
+    fun getAlarmById(alarmId: Long): Alarm
 }

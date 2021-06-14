@@ -1,6 +1,7 @@
 package com.srgnk.simplealarmclock.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,28 +15,17 @@ import com.srgnk.simplealarmclock.ui.activity.AppActivity
 import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
-import org.koin.android.ext.android.inject
+import org.koin.android.ext.android.get
 
 class AlarmScreen : MvpAppCompatFragment(), AlarmView {
 
     private var alarmBinding: FragmentAlarmBinding? = null
     private val binding get() = alarmBinding!!
 
-    private val db: AlarmDatabase by inject()
-
     @InjectPresenter
     lateinit var presenter: AlarmPresenter
     @ProvidePresenter
-    fun providePresenter() = AlarmPresenter(db)
-
-    private var alarmId: Long = -1
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        savedInstanceState?.let {
-            alarmId = it.getLong("alarmId")
-        }
-    }
+    fun providePresenter(): AlarmPresenter = get()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -60,12 +50,23 @@ class AlarmScreen : MvpAppCompatFragment(), AlarmView {
         binding.minutePicker.minValue = 0
 
         binding.saveAlarm.setOnClickListener {
-            presenter.clickedSaveAlarm(alarmId, binding.hourPicker.value, binding.minutePicker.value)
+            presenter.clickedSaveAlarm(binding.hourPicker.value, binding.minutePicker.value)
         }
 
         binding.deleteAlarm.setOnClickListener {
-            presenter.clickedDeleteAlarm(alarmId)
+            presenter.clickedDeleteAlarm()
         }
+
+        val alarmId = arguments?.getLong("alarmId") ?: -1
+        presenter.viewIsReady(alarmId)
+    }
+
+    override fun setHours(hours: Int) {
+        binding.hourPicker.value = hours
+    }
+
+    override fun setMinutes(minutes: Int) {
+        binding.minutePicker.value = minutes
     }
 
     override fun closeScreen() {

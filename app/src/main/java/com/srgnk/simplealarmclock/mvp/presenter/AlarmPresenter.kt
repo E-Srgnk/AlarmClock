@@ -1,5 +1,6 @@
 package com.srgnk.simplealarmclock.mvp.presenter
 
+import android.util.Log
 import com.srgnk.simplealarmclock.R
 import com.srgnk.simplealarmclock.mvp.model.Alarm
 import com.srgnk.simplealarmclock.mvp.model.AlarmDatabase
@@ -13,21 +14,41 @@ class AlarmPresenter(private val db: AlarmDatabase) : MvpPresenter<AlarmView>() 
 
     private var id: Long = -1L
 
-    fun clickedSaveAlarm(alarmId: Long, hours: Int, minutes: Int) {
-        GlobalScope.launch {
-            withContext(Dispatchers.IO) {
-                val alarm = Alarm(hours, minutes)
-                if (alarmId != -1L)
-                    alarm.id = alarmId
-                id = db.alarmDao().insert(alarm)
+    fun viewIsReady(alarmId: Long) {
+        id = alarmId
+        if (isNotNewAlarm()) {
+            GlobalScope.launch {
+                val alarm = withContext(Dispatchers.IO) {
+                    db.alarmDao().getAlarmById(id)
+                }
+                withContext(Dispatchers.Main) {
+                    viewState.setHours(alarm.hour)
+                    viewState.setMinutes(alarm.minute)
+                }
             }
         }
+    }
+
+    fun clickedSaveAlarm(hours: Int, minutes: Int) {
+        val alarm = Alarm(hours, minutes)
+        saveAlarm(alarm)
+
         viewState.showMessage(R.string.alarm_saved)
     }
 
-    fun clickedDeleteAlarm(alarmId: Long) {
-        if (alarmWasSaved()) deleteAlarm(id)
-        else deleteAlarm(alarmId)
+    private fun saveAlarm(alarm: Alarm) {
+        GlobalScope.launch {
+            withContext(Dispatchers.IO) {
+                if (isNotNewAlarm())
+                    alarm.id = id
+
+                id = db.alarmDao().insert(alarm)
+            }
+        }
+    }
+
+    fun clickedDeleteAlarm() {
+        deleteAlarm(id)
 
         viewState.showMessage(R.string.alarm_deleted)
         viewState.closeScreen()
@@ -41,5 +62,5 @@ class AlarmPresenter(private val db: AlarmDatabase) : MvpPresenter<AlarmView>() 
         }
     }
 
-    private fun alarmWasSaved() = id != -1L
+    private fun isNotNewAlarm() = id != -1L
 }
