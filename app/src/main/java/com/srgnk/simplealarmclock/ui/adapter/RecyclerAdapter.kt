@@ -6,14 +6,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.srgnk.simplealarmclock.databinding.AlarmBinding
 import com.srgnk.simplealarmclock.mvp.model.Alarm
+import java.util.*
 
 class RecyclerAdapter(
     private var values: MutableList<Alarm>,
     private val itemClickListener: RecyclerViewClickListener
 ) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
+    private val calendar = GregorianCalendar()
+
     interface RecyclerViewClickListener {
-        fun recyclerViewClickListener(alarmId: Long)
+        fun recyclerViewClickListener(view: View, alarmId: Long)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerAdapter.ViewHolder {
@@ -22,10 +25,12 @@ class RecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val hours = values[position].hour
-        val minutes = values[position].minute
-        holder.hours.text = if (hours < 10) "0$hours" else hours.toString()
-        holder.minutes.text = if (minutes < 10) "0$minutes" else minutes.toString()
+        calendar.timeInMillis = values[position].time
+        val hours = calendar.get(Calendar.HOUR_OF_DAY)
+        val minutes = calendar.get(Calendar.MINUTE)
+        holder.hours.text = if (hours < 10) "0$hours" else "$hours"
+        holder.minutes.text = if (minutes < 10) "0$minutes" else "$minutes"
+        holder.turnAlarm.isChecked = values[position].isActive
     }
 
     override fun getItemCount() = values.size
@@ -35,13 +40,15 @@ class RecyclerAdapter(
 
         var hours = binding.hours
         var minutes = binding.minutes
+        var turnAlarm = binding.turnAlarm
 
         init {
             binding.alarm.setOnClickListener(this)
+            binding.turnAlarm.setOnClickListener(this)
         }
 
-        override fun onClick(v: View) {
-            listener.recyclerViewClickListener(values[adapterPosition].id)
+        override fun onClick(view: View) {
+            listener.recyclerViewClickListener(view, values[adapterPosition].id)
         }
     }
 

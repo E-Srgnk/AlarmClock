@@ -5,12 +5,17 @@ import com.srgnk.simplealarmclock.R
 import com.srgnk.simplealarmclock.mvp.model.Alarm
 import com.srgnk.simplealarmclock.mvp.model.AlarmDatabase
 import com.srgnk.simplealarmclock.mvp.view.AlarmView
+import com.srgnk.simplealarmclock.utils.AlarmUtils
 import kotlinx.coroutines.*
 import moxy.InjectViewState
 import moxy.MvpPresenter
+import java.util.*
 
 @InjectViewState
-class AlarmPresenter(private val db: AlarmDatabase) : MvpPresenter<AlarmView>() {
+class AlarmPresenter(
+    private val alarmUtils: AlarmUtils,
+    private val db: AlarmDatabase
+) : MvpPresenter<AlarmView>() {
 
     private var id: Long = -1L
 
@@ -22,27 +27,41 @@ class AlarmPresenter(private val db: AlarmDatabase) : MvpPresenter<AlarmView>() 
                     db.alarmDao().getAlarmById(id)
                 }
                 withContext(Dispatchers.Main) {
-                    viewState.setHours(alarm.hour)
-                    viewState.setMinutes(alarm.minute)
+                    val calendar = GregorianCalendar().also { it.timeInMillis = alarm.time }
+                    viewState.setHours(calendar.get(Calendar.HOUR_OF_DAY))
+                    viewState.setMinutes(calendar.get(Calendar.MINUTE))
                 }
             }
+        } else {
+            val calendar = Calendar.getInstance(Locale.getDefault())
+            viewState.setHours(calendar.get(Calendar.HOUR_OF_DAY))
+            viewState.setMinutes(calendar.get(Calendar.MINUTE))
         }
     }
 
-    fun clickedSaveAlarm(hours: Int, minutes: Int) {
-        val alarm = Alarm(hours, minutes)
+    fun clickedSaveAlarm(calendar: Calendar) {
+        if (calendar.timeInMillis < System.currentTimeMillis()) {
+            calendar.add(Calendar.HOUR_OF_DAY, 24)
+        }
+
+        val alarm = Alarm(calendar.timeInMillis, true)
         saveAlarm(alarm)
 
         viewState.showMessage(R.string.alarm_saved)
+        viewState.closeScreen()
     }
 
     private fun saveAlarm(alarm: Alarm) {
         GlobalScope.launch {
-            withContext(Dispatchers.IO) {
+            id = withContext(Dispatchers.IO) {
                 if (isNotNewAlarm())
                     alarm.id = id
 
-                id = db.alarmDao().insert(alarm)
+                db.alarmDao().insert(alarm)
+            }
+            withContext(Dispatchers.Main) {
+                alarm.id = id
+                alarmUtils.setAlarmOn(alarm)
             }
         }
     }
@@ -50,6 +69,7 @@ class AlarmPresenter(private val db: AlarmDatabase) : MvpPresenter<AlarmView>() 
     fun clickedDeleteAlarm() {
         deleteAlarm(id)
 
+        alarmUtils.setAlarmOff(id)
         viewState.showMessage(R.string.alarm_deleted)
         viewState.closeScreen()
     }

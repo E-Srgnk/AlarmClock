@@ -1,14 +1,12 @@
 package com.srgnk.simplealarmclock.ui.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.srgnk.simplealarmclock.databinding.FragmentAlarmBinding
-import com.srgnk.simplealarmclock.mvp.model.AlarmDatabase
 import com.srgnk.simplealarmclock.mvp.presenter.AlarmPresenter
 import com.srgnk.simplealarmclock.mvp.view.AlarmView
 import com.srgnk.simplealarmclock.ui.activity.AppActivity
@@ -16,6 +14,7 @@ import moxy.MvpAppCompatFragment
 import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import org.koin.android.ext.android.get
+import java.util.*
 
 class AlarmScreen : MvpAppCompatFragment(), AlarmView {
 
@@ -50,7 +49,11 @@ class AlarmScreen : MvpAppCompatFragment(), AlarmView {
         binding.minutePicker.minValue = 0
 
         binding.saveAlarm.setOnClickListener {
-            presenter.clickedSaveAlarm(binding.hourPicker.value, binding.minutePicker.value)
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, binding.hourPicker.value)
+            calendar.set(Calendar.MINUTE, binding.minutePicker.value)
+
+            presenter.clickedSaveAlarm(calendar)
         }
 
         binding.deleteAlarm.setOnClickListener {

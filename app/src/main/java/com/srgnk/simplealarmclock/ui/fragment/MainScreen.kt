@@ -1,7 +1,6 @@
 package com.srgnk.simplealarmclock.ui.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -66,9 +65,11 @@ class MainScreen : MvpAppCompatFragment(), RecyclerAdapter.RecyclerViewClickList
         )
     }
 
-    override fun recyclerViewClickListener(alarmId: Long) {
-//        openAlarm(alarmId)
-        presenter.clickedRecyclerItem(alarmId)
+    override fun recyclerViewClickListener(view: View, alarmId: Long) {
+        when (view.id) {
+            R.id.alarm -> presenter.clickedRecyclerItem(alarmId)
+            R.id.turn_alarm -> presenter.changeAlarmActivity(alarmId)
+        }
     }
 
     override fun onDestroy() {
