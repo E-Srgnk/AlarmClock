@@ -23,5 +23,12 @@ class StopAlarmActivity: AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+
+        Thread {
+            val alarmClockTime = 60000L
+            Thread.sleep(alarmClockTime)
+            applicationContext.stopService(Intent(applicationContext, AlarmService::class.java))
+            finish()
+        }.start()
     }
 }
