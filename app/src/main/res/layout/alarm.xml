@@ -21,21 +21,19 @@
             android:id="@+id/hours"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="16"
             android:textSize="36sp" />
 
         <TextView
             android:id="@+id/separator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=":"
+            android:text="@string/separator"
             android:textSize="36sp" />
 
         <TextView
             android:id="@+id/minutes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="20"
             android:textSize="36sp" />
     </LinearLayout>
 

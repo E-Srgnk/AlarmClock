@@ -12,6 +12,7 @@ class AlarmUtils(private val context: Context) {
     fun setAlarmOn(alarm: Alarm) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
+        intent.putExtra("alarm_time", alarm.time)
         val pendingIntent = PendingIntent.getBroadcast(context, alarm.id.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         alarmManager.set(AlarmManager.RTC_WAKEUP, alarm.time, pendingIntent)
