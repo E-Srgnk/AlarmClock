@@ -12,6 +12,10 @@
 
         <action
             android:id="@+id/action_MainScreen_to_AlarmScreen"
+            app:enterAnim="@anim/to_left_in"
+            app:exitAnim="@anim/to_left_out"
+            app:popEnterAnim="@anim/to_right_in"
+            app:popExitAnim="@anim/to_right_out"
             app:destination="@+id/AlarmScreen" />
     </fragment>
 
