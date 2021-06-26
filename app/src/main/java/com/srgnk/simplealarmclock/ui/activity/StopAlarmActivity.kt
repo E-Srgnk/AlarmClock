@@ -1,18 +1,33 @@
 package com.srgnk.simplealarmclock.ui.activity
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.PowerManager
+import android.os.PowerManager.WakeLock
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.srgnk.simplealarmclock.databinding.StopAlarmActivityBinding
 import com.srgnk.simplealarmclock.service.AlarmService
 import java.util.*
 
-class StopAlarmActivity: AppCompatActivity() {
+class StopAlarmActivity : AppCompatActivity() {
 
     private lateinit var binding: StopAlarmActivityBinding
 
+    private var wakeLock: WakeLock? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = pm.newWakeLock(
+            PowerManager.SCREEN_BRIGHT_WAKE_LOCK or
+                    PowerManager.ACQUIRE_CAUSES_WAKEUP or PowerManager.ON_AFTER_RELEASE,
+            "SimpleAlarmClock:StopAlarmActivity"
+        )
+        wakeLock?.acquire(1 * 60 * 1000L)
+        window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
 
         binding = StopAlarmActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -38,5 +53,10 @@ class StopAlarmActivity: AppCompatActivity() {
             applicationContext.stopService(Intent(applicationContext, AlarmService::class.java))
             finish()
         }.start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        wakeLock?.release()
     }
 }
