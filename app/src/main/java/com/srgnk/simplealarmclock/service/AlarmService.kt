@@ -4,10 +4,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
-import android.os.Build
-import android.os.IBinder
-import android.os.VibrationEffect
-import android.os.Vibrator
+import android.os.*
 import com.srgnk.simplealarmclock.R
 
 class AlarmService : Service() {
@@ -21,6 +18,7 @@ class AlarmService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         mediaPlayer = MediaPlayer.create(this, R.raw.ringtone)
+        mediaPlayer?.isLooping = true
         mediaPlayer?.start()
 
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
