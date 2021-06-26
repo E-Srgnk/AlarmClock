@@ -52,6 +52,7 @@ class AlarmScreen : MvpAppCompatFragment(), AlarmView {
             val calendar = Calendar.getInstance()
             calendar.set(Calendar.HOUR_OF_DAY, binding.hourPicker.value)
             calendar.set(Calendar.MINUTE, binding.minutePicker.value)
+            calendar.set(Calendar.SECOND, 0)
 
             presenter.clickedSaveAlarm(calendar)
         }
