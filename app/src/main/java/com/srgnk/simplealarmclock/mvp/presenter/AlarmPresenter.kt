@@ -9,6 +9,7 @@ import com.srgnk.simplealarmclock.utils.AlarmUtils
 import kotlinx.coroutines.*
 import moxy.InjectViewState
 import moxy.MvpPresenter
+import moxy.presenterScope
 import java.util.*
 
 @InjectViewState
@@ -22,7 +23,7 @@ class AlarmPresenter(
     fun viewIsReady(alarmId: Long) {
         id = alarmId
         if (isNotNewAlarm()) {
-            GlobalScope.launch {
+            presenterScope.launch {
                 val alarm = withContext(Dispatchers.IO) {
                     db.alarmDao().getAlarmById(id)
                 }
@@ -52,7 +53,7 @@ class AlarmPresenter(
     }
 
     private fun saveAlarm(alarm: Alarm) {
-        GlobalScope.launch {
+        presenterScope.launch {
             id = withContext(Dispatchers.IO) {
                 if (isNotNewAlarm())
                     alarm.id = id
@@ -75,7 +76,7 @@ class AlarmPresenter(
     }
 
     private fun deleteAlarm(id: Long) {
-        GlobalScope.launch {
+        presenterScope.launch {
             withContext(Dispatchers.IO) {
                 db.alarmDao().deleteById(id)
             }

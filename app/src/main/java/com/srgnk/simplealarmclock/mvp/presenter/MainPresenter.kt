@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import moxy.InjectViewState
 import moxy.MvpPresenter
+import moxy.presenterScope
 
 @InjectViewState
 class MainPresenter(
@@ -17,7 +18,7 @@ class MainPresenter(
 ) : MvpPresenter<MainView>() {
 
     fun viewIsReady() {
-        GlobalScope.launch {
+        presenterScope.launch {
             val alarms = withContext(Dispatchers.IO) {
                 db.alarmDao().getAllAlarms()
             }
@@ -32,7 +33,7 @@ class MainPresenter(
     }
 
     fun changeAlarmActivity(alarmId: Long) {
-        GlobalScope.launch {
+        presenterScope.launch {
             withContext(Dispatchers.IO) {
                 val alarm = db.alarmDao().getAlarmById(alarmId)
                 alarm.isActive = !alarm.isActive
