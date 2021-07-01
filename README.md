@@ -1,3 +1,3 @@
 # AlarmClock
-Приложение Заметки.
+Приложение Будильник.
 Использованы бибилоткеки: Moxy, Navigation, Room, Coroutines, Koin.
